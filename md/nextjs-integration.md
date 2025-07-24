@@ -6,7 +6,7 @@ This guide shows how to configure and use these GitHub Pages hosted images in Ne
 
 ### 1. Next.js Image Configuration
 
-Add the GitHub Pages domain to your `next.config.js` to allow external images:
+Add the GitHub Pages domain to your `next.config.js` to allow external images. The explicit `port` and `search` properties ensure maximum compatibility:
 
 ```javascript
 /** @type {import('next').NextConfig} */
@@ -16,8 +16,26 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'timkralik.github.io',
+        port: '',
         pathname: '/public-image-test/**',
+        search: '',
       },
+    ],
+  },
+}
+
+module.exports = nextConfig
+```
+
+#### Alternative Configuration (Next.js 15.3.0+)
+For Next.js 15.3.0 and later, you can also use the cleaner URL object syntax:
+
+```javascript
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  images: {
+    remotePatterns: [
+      new URL('https://timkralik.github.io/public-image-test/**')
     ],
   },
 }
@@ -237,6 +255,7 @@ export default function SafeImage({ src, alt, ...props }) {
       src={src}
       alt={alt}
       onError={() => setError(true)}
+      onLoad={() => console.log('Image loaded successfully')} // Use onLoad instead of deprecated onLoadingComplete
       {...props}
     />
   )
@@ -248,6 +267,7 @@ export default function SafeImage({ src, alt, ...props }) {
 Add types to your `next-env.d.ts` or create a `types/images.d.ts`:
 
 ```typescript
+// types/images.d.ts
 declare module '@/lib/images' {
   export interface TestImage {
     id: string
